@@ -6,6 +6,14 @@ function App() {
   const [inputTask, setInputTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("darkMode") === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
+
   const [taskList, setTaskList] = useState(() => {
     const saved = localStorage.getItem("tasks");
     try {
@@ -70,21 +78,28 @@ function App() {
     );
   }
   return (
-    <>
-      <div className="min-h-screen bg-gray-700">
+    <div className={darkMode ? "dark" : ""}>
+      <div className="min-h-screen bg-gray-700 dark:bg-gray-900">
         <div className="container border min-h-screen flex flex-col justify-center items-center gap-4">
-          <h1 className="header">MY TASK MANAGER</h1>
-          <div className="flex justify-between items-center gap-10">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-2 rounded"
+          >
+            {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+          </button>
+
+          <h1 className="header dark:text-white">MY TASK MANAGER</h1>
+          <div className="flex justify-between items-center gap-10 dark:text-gray-200">
             <p>Total Tasks: {totalTask}</p>
             <p>Completed: {completedTask}</p>
             <p>Remaining Task: {remainingTask}</p>
           </div>
 
-          <div className=" relative w-md">
+          <div className="relative w-md">
             <input
               type="text"
               placeholder="Enter Task"
-              className="w-full border p-3 pr-40 rounded-lg"
+              className="w-full border p-3 pr-40 rounded-lg dark:bg-gray-800 dark:text-white dark:border-gray-600"
               value={inputTask}
               onChange={(e) => setInputTask(e.target.value)}
               onKeyDown={(e) => {
@@ -94,19 +109,20 @@ function App() {
               }}
             />
           </div>
+
           <div className="taskList w-md">
             <ul className="w-full">
               {taskList.map((task) => (
                 <li
                   key={task.id}
-                  className="flex items-center justify-between w-full"
+                  className="flex items-center justify-between w-full dark:text-gray-200"
                 >
                   {editingId === task.id ? (
                     <input
                       type="text"
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="border p-2 rounded"
+                      className="border p-2 rounded dark:bg-gray-800 dark:text-white dark:border-gray-600"
                     ></input>
                   ) : (
                     <span
@@ -119,7 +135,7 @@ function App() {
                   )}
                   <input
                     type="checkbox"
-                    className=" appearance-none w-5 h-5 border-2  border-black rounded cursor-pointer checked:bg-red-400"
+                    className="appearance-none w-5 h-5 border-2 border-black rounded cursor-pointer checked:bg-red-400 dark:border-gray-400"
                     checked={task.completed}
                     onChange={() => ToggleTask(task)}
                   />
@@ -142,6 +158,7 @@ function App() {
               ))}
             </ul>
           </div>
+
           {taskList.length > 0 && (
             <button
               className="bg-gray-900 text-red-400 px-3 py-2 rounded"
@@ -152,7 +169,7 @@ function App() {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
