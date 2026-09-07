@@ -6,12 +6,14 @@ function App() {
   const [inputTask, setInputTask] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [filter, setFilter] = useState("all"); // "all" | "active" | "completed"
+
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("darkMode") === "true";
+    return localStorage.getItem("isDarkMode") === "true";
   });
 
   useEffect(() => {
-    localStorage.setItem("darkMode", darkMode);
+    localStorage.setItem("isDarkMode", darkMode);
   }, [darkMode]);
 
   const [taskList, setTaskList] = useState(() => {
@@ -22,13 +24,20 @@ function App() {
       return [];
     }
   });
-  const totalTask = taskList.length;
-  const completedTask = taskList.filter((task) => task.completed).length;
-  const remainingTask = taskList.filter((task) => !task.completed).length;
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(taskList));
   }, [taskList]);
+
+  const totalTask = taskList.length;
+  const completedTask = taskList.filter((task) => task.completed).length;
+  const remainingTask = taskList.filter((task) => !task.completed).length;
+
+  const filteredTasks = taskList.filter((task) => {
+    if (filter === "completed") return task.completed;
+    if (filter === "active") return !task.completed;
+    return true; // "all"
+  });
 
   function AddTask() {
     if (!inputTask.trim()) return;
@@ -38,6 +47,7 @@ function App() {
     ]);
     setInputTask("");
   }
+
   function ToggleTask(taskToToggle) {
     setTaskList(
       taskList.map((task) => {
@@ -51,10 +61,12 @@ function App() {
       }),
     );
   }
+
   function EditTask(task) {
     setEditingId(task.id);
     setEditText(task.text);
   }
+
   function SaveTask(taskId) {
     setTaskList(
       taskList.map((task) => {
@@ -70,6 +82,7 @@ function App() {
     setEditingId(null);
     setEditText("");
   }
+
   function DeleteTask() {
     setTaskList(
       taskList.filter((task) => {
@@ -77,6 +90,7 @@ function App() {
       }),
     );
   }
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-gray-700 dark:bg-gray-900">
@@ -89,6 +103,7 @@ function App() {
           </button>
 
           <h1 className="header dark:text-white">MY TASK MANAGER</h1>
+
           <div className="flex justify-between items-center gap-10 dark:text-gray-200">
             <p>Total Tasks: {totalTask}</p>
             <p>Completed: {completedTask}</p>
@@ -110,9 +125,42 @@ function App() {
             />
           </div>
 
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-3 py-1 rounded ${
+                filter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter("active")}
+              className={`px-3 py-1 rounded ${
+                filter === "active"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+              }`}
+            >
+              Active
+            </button>
+            <button
+              onClick={() => setFilter("completed")}
+              className={`px-3 py-1 rounded ${
+                filter === "completed"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+              }`}
+            >
+              Completed
+            </button>
+          </div>
+
           <div className="taskList w-md">
             <ul className="w-full">
-              {taskList.map((task) => (
+              {filteredTasks.map((task) => (
                 <li
                   key={task.id}
                   className="flex items-center justify-between w-full dark:text-gray-200"
